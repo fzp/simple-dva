@@ -11,7 +11,7 @@ Domain Model is used to handle data of a component in a single page. it consists
 
 the key name in the Redux store. It is also the prefix of all action type in this model.
 
-### state
+### State
 
 The initial state in the Redux store.
 
