@@ -1,15 +1,15 @@
-class SimpleDVA {
 
-    constructor(saGaEffect, errorHandler) {
-        this.saGaEffect = saGaEffect;
+import * as saGaEffect from 'redux-saga/effects';
+class SimpleDVA {
+    constructor(errorHandler) {
         if (errorHandler) {
             this._errorHandler = errorHandler;
         }
     }
 
-    _errorHandler = function* (err) {
+    _errorHandler = function*(err) {
         console.log(err);
-        yield this.saGaEffect.put({ type: `error/save`, state: { ...err } });
+        yield saGaEffect.put({ type: `error/save`, state: {...err } });
     }
 
     _parseModel = (model) => {
@@ -24,28 +24,26 @@ class SimpleDVA {
                 return reducers[type] ? reducers[type](state, action) : state;
             }
         }
-        let wappedEffects = {}
+        let wrappedEffects = {}
         for (var i in model.effects) {
             let effect = model.effects[i];
             if (!Array.isArray(effect)) {
                 effect = [effect, { type: "takeEvery" }];
             }
-            //let name = i;
             let dva = this;
-            wappedEffects[`${model.namespace}/${i}`] = [function* (action) {
+            wrappedEffects[`${model.namespace}/${i}`] = [function*(action) {
                 try {
-                    yield effect[0](action, dva.saGaEffect);
+                    yield effect[0](action, saGaEffect);
                 } catch (err) {
                     yield dva._errorHandler(err);
                 }
             }, effect[1]];
         }
-        return [wrappedReducer, wappedEffects];
+        return [wrappedReducer, wrappedEffects];
     }
 
     _getRootSaga = (effects) => {
-        let saGaEffect = this.saGaEffect;
-        return function* () {
+        return function*() {
             for (var i in effects) {
                 yield saGaEffect[effects[i][1].type](i, effects[i][0]);
             }
