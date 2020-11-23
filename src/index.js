@@ -7,6 +7,12 @@ class SimpleDVA {
         }
     }
 
+    _defaultReducers = {
+        save: (state, action) => {
+            return { ...state, ...action.state };
+        }
+    }
+    
     _errorHandler = function*(err) {
         console.log(err);
         yield saGaEffect.put({ type: `error/save`, state: {...err } });
@@ -16,7 +22,7 @@ class SimpleDVA {
         if (!model.state) model.state = {}
         if (!model.reducers) model.reducers = {}
         if (!model.effects) model.effects = {}
-        let reducers = model.reducers;
+        let reducers = {...model.reducers, ...this._defaultReducers};
         let wrappedReducer = {
             [model.namespace]: (state = model.state, action) => {
                 if (typeof action.type != "string" || !action.type.startsWith(`${model.namespace}/`)) return state;
